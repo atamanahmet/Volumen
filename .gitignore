@@ -3,6 +3,8 @@
 # dependencies
 node_modules/
 
+volumen-mobile/.vscode
+
 # Expo
 .expo/
 dist/
@@ -32,8 +34,10 @@ yarn-error.*
 
 # local env files
 .env*.local
+volumen-backend/.env
 
 # typescript
 *.tsbuildinfo
 
 app-example
+.mvn
