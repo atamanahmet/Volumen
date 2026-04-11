@@ -1,4 +1,4 @@
-package com.atamanahmet.volumen.domain.POJO;
+package com.atamanahmet.volumen.domain;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +24,6 @@ import lombok.Setter;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String username;
     private String password;

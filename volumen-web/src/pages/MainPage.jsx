@@ -53,7 +53,7 @@ const MainPage = () => {
     const fetch_ = () => {
       axios
         .get(
-          "http://localhost:8080/books/list?userId=3a5554bc-312b-46bf-9086-864ccb78d25d",
+          "http://localhost:8080/books/list?userId=00000000-0000-0000-0000-000000000001",
         )
         .then(({ data }) => {
           if (mounted) {
@@ -93,19 +93,22 @@ const MainPage = () => {
   }, [books, query, sortIdx]);
 
   return (
-    <div style={styles.root}>
-      <header style={styles.header}>
-        <div style={styles.headerLeft}>
-          <span style={styles.logo}>Library</span>
-          <span style={styles.count}>
+    <div className="font-[Cormorant_Garamond] bg-[#1C0F00] min-h-screen text-amber-400 pt-20 pb-16 -mt-10">
+      <header className="flex items-center justify-between flex-wrap gap-4 px-[clamp(1.5rem,5vw,4rem)] mb-5">
+        <div className="flex items-baseline gap-5">
+          <span className="text-3xl font-bold tracking-[0.22em] text-amber-400">
+            Library
+          </span>
+          <span className="text-[0.78rem] tracking-[0.12em] text-amber-600 uppercase">
             {displayed.length} / {books.length} volumes
           </span>
         </div>
 
-        <div style={styles.controls}>
-          <div style={styles.searchWrap}>
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Search */}
+          <div className="relative flex items-center">
             <svg
-              style={styles.searchIcon}
+              className="absolute left-[0.65rem] w-3.5 h-3.5 text-amber-600 pointer-events-none"
               viewBox="0 0 20 20"
               fill="none"
               stroke="currentColor"
@@ -115,20 +118,24 @@ const MainPage = () => {
               <line x1="13" y1="13" x2="18" y2="18" />
             </svg>
             <input
-              style={styles.search}
+              className="bg-amber-950 border border-amber-800 rounded text-amber-400 text-md py-[0.45rem] pl-[2.1rem] pr-8 w-55 outline-none tracking-[0.04em] font-[inherit]"
               placeholder="Search title or author…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             {query && (
-              <button style={styles.clearBtn} onClick={() => setQuery("")}>
+              <button
+                className="absolute right-2 bg-transparent border-none text-amber-600 cursor-pointer text-[0.75rem] p-0 leading-none"
+                onClick={() => setQuery("")}
+              >
                 ✕
               </button>
             )}
           </div>
 
+          {/* Sort */}
           <select
-            style={styles.select}
+            className="bg-amber-950 border border-amber-800 rounded text-amber-400 text-lg py-[0.45rem] px-[0.7rem] outline-none cursor-pointer font-[inherit] tracking-[0.04em]"
             value={sortIdx}
             onChange={(e) => setSortIdx(Number(e.target.value))}
           >
@@ -139,14 +146,12 @@ const MainPage = () => {
             ))}
           </select>
 
-          <div style={styles.toggle}>
+          {/* Grid/List toggle */}
+          <div className="flex border border-amber-800 rounded overflow-hidden">
             {["grid", "list"].map((v) => (
               <button
                 key={v}
-                style={{
-                  ...styles.toggleBtn,
-                  ...(view === v ? styles.toggleBtnActive : {}),
-                }}
+                className={`border-none py-[0.68rem] px-[0.72rem] cursor-pointer flex items-center ${view === v ? "bg-amber-800" : "bg-amber-950"}`}
                 onClick={() => setView(v)}
               >
                 {v === "grid" ? (
@@ -160,12 +165,16 @@ const MainPage = () => {
         </div>
       </header>
 
-      <div style={styles.divider} />
+      <div className="h-px bg-amber-800 mx-[clamp(1.5rem,5vw,4rem)] mb-10" />
 
       {loading ? (
-        <p style={styles.empty}>Loading collection…</p>
+        <p className="text-center text-amber-600 text-[0.9rem] tracking-[0.08em] mt-20">
+          Loading collection…
+        </p>
       ) : displayed.length === 0 ? (
-        <p style={styles.empty}>No books found.</p>
+        <p className="text-center text-amber-600 text-[0.9rem] tracking-[0.08em] mt-20">
+          No books found.
+        </p>
       ) : view === "grid" ? (
         <GridView books={displayed} cachedImages={cachedImages} />
       ) : (
@@ -176,7 +185,10 @@ const MainPage = () => {
 };
 
 const GridView = ({ books, cachedImages }) => (
-  <div style={styles.grid}>
+  <div
+    className="grid gap-x-10 gap-y-10 px-16"
+    style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}
+  >
     {books.map((book) => {
       const src =
         book.cover_i && cachedImages[book.cover_i]
@@ -185,22 +197,28 @@ const GridView = ({ books, cachedImages }) => (
       return (
         <div
           key={book.id}
-          style={styles.gridItem}
+          className="cursor-pointer flex flex-col items-center pb-4 mt-5"
           onClick={() =>
             book.key &&
             window.open(`https://openlibrary.org${book.key}`, "_blank")
           }
         >
           <div className="book-container">
-            <div className="book">
+            <div className="book -ml-8">
               <div>
-                <img src={src} alt={book.title} style={styles.coverImg} />
+                <img
+                  src={src}
+                  alt={book.title}
+                  className="w-full h-full object-cover rounded-r-sm"
+                />
               </div>
             </div>
           </div>
-          <div style={styles.gridMeta}>
-            <p style={styles.gridTitle}>{book.title}</p>
-            <p style={styles.gridAuthor}>
+          <div className="mt-3 w-52 text-xl">
+            <p className="text-amber-300 font-semibold mb-1 leading-snug mt-10">
+              {book.title}
+            </p>
+            <p className="text-amber-600 ">
               {book.author_name?.join(", ") || "Unknown"}
             </p>
           </div>
@@ -211,7 +229,7 @@ const GridView = ({ books, cachedImages }) => (
 );
 
 const ListView = ({ books, cachedImages }) => (
-  <div style={styles.list}>
+  <div className="flex flex-col px-[clamp(1.5rem,5vw,4rem)] -mt-10">
     {books.map((book, i) => {
       const src =
         book.cover_i && cachedImages[book.cover_i]
@@ -220,28 +238,36 @@ const ListView = ({ books, cachedImages }) => (
       return (
         <div
           key={book.id}
-          style={styles.listRow}
+          className="flex items-center gap-5 py-15 border-b border-amber-800 cursor-pointer "
           onClick={() =>
             book.key &&
             window.open(`https://openlibrary.org${book.key}`, "_blank")
           }
         >
-          <span style={styles.listIndex}>{String(i + 1).padStart(2, "0")}</span>
-          <div style={styles.listBookWrap} className="book-container">
+          <span className="text-amber-400 tracking-widest min-w-[1.8rem] text-xl">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <div className="shrink-0 book-container ">
             <div className="book book--small">
               <div>
-                <img src={src} alt={book.title} style={styles.coverImg} />
+                <img
+                  src={src}
+                  alt={book.title}
+                  className="w-full h-full object-cover rounded-r-sm"
+                />
               </div>
             </div>
           </div>
-          <div style={styles.listMeta}>
-            <span style={styles.listTitle}>{book.title}</span>
-            <span style={styles.listAuthor}>
+          <div className="flex-1 flex flex-col gap-2 min-w-0 ml-5">
+            <span className="text-amber-400 text-xl font-semibold tracking-[0.01em] truncate">
+              {book.title}
+            </span>
+            <span className="text-amber-600 tracking-[0.04em] text-lg">
               {book.author_name?.join(", ") || "Unknown"}
             </span>
           </div>
           <svg
-            style={styles.arrowIcon}
+            className="w-4 h-4 text-amber-800 shrink-0"
             viewBox="0 0 16 16"
             fill="none"
             stroke="currentColor"
@@ -284,206 +310,5 @@ const ListIcon = ({ active }) => (
     <line x1="2" y1="12" x2="14" y2="12" />
   </svg>
 );
-
-const styles = {
-  root: {
-    fontFamily: "'Cormorant Garamond', Georgia, serif",
-    backgroundColor: "#1C0F00",
-    minHeight: "100vh",
-    color: "#FFB347",
-    paddingTop: "5rem",
-    paddingBottom: "4rem",
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: "1rem",
-    paddingInline: "clamp(1.5rem, 5vw, 4rem)",
-    marginBottom: "1.25rem",
-  },
-  headerLeft: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: "1.25rem",
-  },
-  logo: {
-    fontSize: "1.6rem",
-    fontWeight: "700",
-    letterSpacing: "0.22em",
-    color: "#FFB347",
-  },
-  count: {
-    fontSize: "0.78rem",
-    letterSpacing: "0.12em",
-    color: "#7a5c3a",
-    textTransform: "uppercase",
-  },
-  controls: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    flexWrap: "wrap",
-  },
-  searchWrap: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-  },
-  searchIcon: {
-    position: "absolute",
-    left: "0.65rem",
-    width: "14px",
-    height: "14px",
-    color: "#7a5c3a",
-    pointerEvents: "none",
-  },
-  search: {
-    background: "#2A1500",
-    border: "1px solid #3d2200",
-    borderRadius: "4px",
-    color: "#FFB347",
-    fontSize: "0.82rem",
-    padding: "0.45rem 2rem 0.45rem 2.1rem",
-    width: "220px",
-    outline: "none",
-    letterSpacing: "0.04em",
-    fontFamily: "inherit",
-  },
-  clearBtn: {
-    position: "absolute",
-    right: "0.5rem",
-    background: "none",
-    border: "none",
-    color: "#7a5c3a",
-    cursor: "pointer",
-    fontSize: "0.75rem",
-    padding: 0,
-    lineHeight: 1,
-  },
-  select: {
-    background: "#2A1500",
-    border: "1px solid #3d2200",
-    borderRadius: "4px",
-    color: "#FFB347",
-    fontSize: "0.8rem",
-    padding: "0.45rem 0.7rem",
-    outline: "none",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    letterSpacing: "0.04em",
-  },
-  toggle: {
-    display: "flex",
-    border: "1px solid #3d2200",
-    borderRadius: "4px",
-    overflow: "hidden",
-  },
-  toggleBtn: {
-    background: "#2A1500",
-    border: "none",
-    padding: "0.45rem 0.6rem",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-  },
-  toggleBtnActive: {
-    background: "#3d2200",
-  },
-  divider: {
-    height: "1px",
-    backgroundColor: "#3d2200",
-    marginInline: "clamp(1.5rem, 5vw, 4rem)",
-    marginBottom: "2.5rem",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-    gap: "2.5rem 2rem",
-    paddingInline: "clamp(1.5rem, 5vw, 4rem)",
-  },
-  gridItem: {
-    cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-  },
-  gridMeta: { marginTop: "0.85rem", width: "100%" },
-  gridTitle: {
-    color: "#FFB347",
-    fontSize: "0.85rem",
-    fontWeight: "600",
-    margin: "0 0 0.2rem",
-    lineHeight: 1.35,
-    letterSpacing: "0.01em",
-  },
-  gridAuthor: {
-    color: "#7a5c3a",
-    fontSize: "0.75rem",
-    margin: 0,
-    letterSpacing: "0.04em",
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    paddingInline: "clamp(1.5rem, 5vw, 4rem)",
-  },
-  listRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1.25rem",
-    padding: "1rem 0",
-    borderBottom: "1px solid #2A1500",
-    cursor: "pointer",
-  },
-  listIndex: {
-    color: "#3d2200",
-    fontSize: "0.75rem",
-    letterSpacing: "0.1em",
-    minWidth: "1.8rem",
-  },
-  listBookWrap: { flexShrink: 0 },
-  listMeta: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.2rem",
-    minWidth: 0,
-  },
-  listTitle: {
-    color: "#FFB347",
-    fontSize: "0.95rem",
-    fontWeight: "600",
-    letterSpacing: "0.01em",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-  listAuthor: {
-    color: "#7a5c3a",
-    fontSize: "0.8rem",
-    letterSpacing: "0.04em",
-  },
-  arrowIcon: {
-    width: "16px",
-    height: "16px",
-    color: "#3d2200",
-    flexShrink: 0,
-  },
-  coverImg: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    borderRadius: "0 2px 2px 0",
-  },
-  empty: {
-    textAlign: "center",
-    color: "#7a5c3a",
-    fontSize: "0.9rem",
-    letterSpacing: "0.08em",
-    marginTop: "5rem",
-  },
-};
 
 export default MainPage;

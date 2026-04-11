@@ -1,6 +1,6 @@
 package com.atamanahmet.volumen.service;
 
-import com.atamanahmet.volumen.domain.POJO.User;
+import com.atamanahmet.volumen.domain.User;
 import com.atamanahmet.volumen.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,5 +56,17 @@ class UserServiceTest {
         user.setUsername("testUser");
         userService.saveUser(user);
         verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void saveUser_shouldCallRepositoryAndReturnUser() {
+        User user = new User();
+        user.setUsername("testUser");
+        when(userRepository.save(user)).thenReturn(user);
+
+        User result = userService.saveUser(user);
+
+        verify(userRepository, times(1)).save(user);
+        assertEquals(user, result);
     }
 }

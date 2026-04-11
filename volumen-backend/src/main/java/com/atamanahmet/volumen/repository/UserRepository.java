@@ -3,7 +3,7 @@ package com.atamanahmet.volumen.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.atamanahmet.volumen.domain.POJO.User;
+import com.atamanahmet.volumen.domain.User;
 
 import java.util.UUID;
 

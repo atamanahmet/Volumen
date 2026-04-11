@@ -1,4 +1,4 @@
-package com.atamanahmet.volumen.domain.POJO;
+package com.atamanahmet.volumen.domain;
 
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +46,4 @@ public class Book {
     private String title;
     private String cover_i;
 
-    // @ManyToOne
-    // @JoinColumn(name = "user_id")
-    // private User user;
 }

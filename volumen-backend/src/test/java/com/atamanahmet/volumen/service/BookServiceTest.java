@@ -1,6 +1,6 @@
 package com.atamanahmet.volumen.service;
 
-import com.atamanahmet.volumen.domain.POJO.Book;
+import com.atamanahmet.volumen.domain.Book;
 import com.atamanahmet.volumen.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

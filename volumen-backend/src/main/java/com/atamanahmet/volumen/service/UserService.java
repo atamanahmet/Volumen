@@ -1,6 +1,6 @@
 package com.atamanahmet.volumen.service;
 
-import com.atamanahmet.volumen.domain.POJO.User;
+import com.atamanahmet.volumen.domain.User;
 import com.atamanahmet.volumen.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void saveUser(User user) {
-        userRepository.save(user);
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 }

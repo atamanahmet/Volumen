@@ -1,11 +1,13 @@
 package com.atamanahmet.volumen.controller;
 
-import com.atamanahmet.volumen.domain.POJO.Book;
-import com.atamanahmet.volumen.domain.POJO.User;
+import com.atamanahmet.volumen.domain.Book;
+import com.atamanahmet.volumen.domain.DTO.BookDTO;
+import com.atamanahmet.volumen.domain.User;
 import com.atamanahmet.volumen.service.BookSearchService;
 import com.atamanahmet.volumen.service.BookService;
 import com.atamanahmet.volumen.service.UserService;
-import org.springframework.http.HttpStatus;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,23 +15,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/books")
+@RequiredArgsConstructor
 public class BookController {
 
     private final BookService bookService;
     private final UserService userService;
     private final BookSearchService bookSearchService;
-
-    public BookController(BookService bookService, UserService userService, BookSearchService bookSearchService) {
-        this.bookService = bookService;
-        this.userService = userService;
-        this.bookSearchService = bookSearchService;
-    }
 
     @GetMapping("/list")
     public ResponseEntity<List<Book>> getList(@RequestParam UUID userId) {
@@ -40,36 +36,45 @@ public class BookController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveBook(@RequestParam UUID userId, @RequestBody Book book) {
-        if (book.getId() == null) {
-            return ResponseEntity.badRequest().body("Book ID is required");
+    public ResponseEntity<String> saveBook(@RequestParam UUID userId, @RequestBody BookDTO bookDTO) {
+        if (bookDTO.getKey() == null || bookDTO.getTitle() == null) {
+            return ResponseEntity.badRequest().body("Book key and title are required");
         }
 
-        Optional<Book> optionalBook = bookService.findById(book.getId());
-        if (optionalBook.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
+        User user = userService.findUser(userId).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setId(userId);
+            return userService.saveUser(newUser);
+        });
+
+        Book savedBook = bookService.findByKey(bookDTO.getKey())
+                .orElseGet(() -> {
+                    Book newBook = new Book();
+                    newBook.setKey(bookDTO.getKey());
+                    newBook.setTitle(bookDTO.getTitle());
+                    newBook.setAuthor_name(bookDTO.getAuthor_name());
+                    newBook.setAuthor_key(bookDTO.getAuthor_key());
+                    newBook.setCover_i(bookDTO.getCover_i());
+                    newBook.setFirst_publish_year(bookDTO.getFirst_publish_year());
+                    newBook.setLanguage(bookDTO.getLanguage());
+                    newBook.setEbook_access(bookDTO.getEbook_access());
+                    newBook.setHas_fulltext(bookDTO.isHas_fulltext());
+                    newBook.setPublic_scan_b(bookDTO.isPublic_scan_b());
+                    return bookService.save(newBook);
+                });
+
+        if (user.getBookIds() == null) user.setBookIds(new ArrayList<>());
+
+        if (!user.getBookIds().contains(savedBook.getId())) {
+            user.getBookIds().add(savedBook.getId());
+            userService.saveUser(user);
         }
-
-        Optional<User> optionalUser = userService.findUser(userId);
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        User user = optionalUser.get();
-
-        if (user.getBookIds() == null) {
-            user.setBookIds(new ArrayList<>());
-        }
-
-        user.getBookIds().add(optionalBook.get().getId());
-        user.getBookIds().add(optionalBook.get().getId());
-        userService.saveUser(user);
 
         return ResponseEntity.ok("Book saved to user");
     }
 
     @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<List<Book>> findByIsbn(@PathVariable String isbn)
+    public ResponseEntity<List<BookDTO>> findByIsbn(@PathVariable String isbn)
             throws URISyntaxException, IOException, InterruptedException {
         if (isbn == null || isbn.isEmpty()) {
             return ResponseEntity.badRequest().build();
