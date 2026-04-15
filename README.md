@@ -6,7 +6,8 @@ Volumen is a cross-platform app for cataloging physical books.
 
 - **Docker** - runs everything
 - **Make** - to run Makefile commands
-- **Expo Go** - for running the mobile app
+- **Node.js** - for running the mobile app
+- **Expo Go** - for running the mobile app on device
 
 ## How it works
 
@@ -38,9 +39,21 @@ make start
 This starts PostgreSQL, OCR service, backend and web.
 
 **Mobile**
-- Install Expo Go from Play Store
+- Install Expo Go from [Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent) / [App Store](https://apps.apple.com/app/expo-go/id982107779)
 - Run `npm install` in `volumen-mobile`
-- Run `npx expo start` and scan the QR code with Expo Go
+- Run `npx expo start --lan` and scan the QR code with Expo Go
+
+> Your phone and computer must be on the same network.
+> No `.env` needed, the app automatically detects your machine's LAN IP from Expo at runtime.
+> **Note:** This is a development build, not a packaged or released app. Not tested on iOS. Expect rough edges.
+
+**Expo Web (UI testing only)**
+The mobile app also runs in browser for quick UI testing, no phone needed:
+```bash
+cd volumen-mobile
+npx expo start --web
+```
+> Expo Web does not support camera or barcode scanning. OCR via file upload still works.
 
 ## Notes
 
