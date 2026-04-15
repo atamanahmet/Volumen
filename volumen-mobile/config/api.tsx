@@ -1,6 +1,24 @@
 // For Expo Web (browser): backend is on localhost
-// For physical device on same network: set EXPO_PUBLIC_API_URL in .env
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080";
+
+import Constants from "expo-constants";
+import { Platform } from "react-native";
+
+// const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080";
+
+const getBaseUrl = () => {
+  if (Platform.OS === "web") {
+    const hostname =
+      typeof window !== "undefined" ? window.location.hostname : "localhost";
+    return `http://${hostname}:8080`;
+  }
+
+  const host = Constants.expoConfig?.hostUri?.split(":")[0];
+  if (host) return `http://${host}:8080`;
+
+  return "http://localhost:8080";
+};
+
+const BASE_URL = getBaseUrl();
 
 export const API = {
   ocr: {

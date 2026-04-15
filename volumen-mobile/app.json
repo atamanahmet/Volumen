@@ -1,15 +1,19 @@
 {
   "expo": {
-    "name": "library",
-    "slug": "library",
-    "version": "1.0.0",
+    "name": "volumen",
+    "slug": "volumen",
+    "newArchEnabled": false,
+    "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "library",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Used to scan book covers and barcodes.",
+        "NSPhotoLibraryUsageDescription": "Used to pick book cover photos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,6 +30,19 @@
     "plugins": [
       "expo-router",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Used to pick book cover photos.",
+          "cameraPermission": "Used to scan book covers."
+        }
+      ],
+      [
+        "expo-barcode-scanner",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
@@ -34,12 +51,8 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      [
-        "expo-barcode-scanner",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
-        }
-      ]
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

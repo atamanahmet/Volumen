@@ -1,10 +1,12 @@
 import { API } from "@/config/api";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system/legacy";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
   ScrollView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -39,18 +41,48 @@ export default function App() {
     setBooks([]);
   };
 
-  const uploadAndOcr = async (uri: string) => {
+  /**
+   * Converts a base64 string to a Blob.
+   */
+  const base64ToBlob = (base64: string, mimeType: string): Blob => {
+    const byteCharacters = atob(base64);
+    const byteArray = new Uint8Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteArray[i] = byteCharacters.charCodeAt(i);
+    }
+    return new Blob([byteArray], { type: mimeType });
+  };
+
+  /**
+   * Uploads an image to the OCR endpoint.
+   *
+   * If base64 is provided (camera path), converted it to a Blob and send it.
+   * This avoids the Expo Go issue where file:// URIs from the camera can't be
+   * streamed
+   *
+   * If base64 is not provided (gallery path), fall back to the blob:/data:
+   */
+  const uploadAndOcr = async (uri: string, base64?: string) => {
     setOcrLoading(true);
     try {
       const formData = new FormData();
 
-      if (uri.startsWith("blob:") || uri.startsWith("data:")) {
+      if (Platform.OS === "web") {
         const response = await fetch(uri);
         const blob = await response.blob();
         formData.append("file", blob, "photo.jpg");
       } else {
+        let fileUri = uri;
+
+        if (base64) {
+          fileUri = FileSystem.cacheDirectory + "ocr_temp.jpg";
+          await FileSystem.writeAsStringAsync(fileUri, base64, {
+            encoding: "base64",
+          });
+        }
+
         formData.append("file", {
-          uri,
+          uri: fileUri,
           name: "photo.jpg",
           type: "image/jpeg",
         } as any);
@@ -75,12 +107,13 @@ export default function App() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
+      // No base64 needed for gallery — file:// URI works
     });
     if (result.canceled || !result.assets[0]) return;
 
-    const uri = result.assets[0].uri;
-    setImageUri(uri);
-    await uploadAndOcr(uri);
+    const asset = result.assets[0];
+    setImageUri(asset.uri);
+    await uploadAndOcr(asset.uri); // no base64
   };
 
   const pickFromCamera = async () => {
@@ -93,13 +126,14 @@ export default function App() {
 
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
+      quality: 0.3,
+      base64: true,
     });
     if (result.canceled || !result.assets[0]) return;
 
-    const uri = result.assets[0].uri;
-    setImageUri(uri);
-    await uploadAndOcr(uri);
+    const asset = result.assets[0];
+    setImageUri(asset.uri);
+    await uploadAndOcr(asset.uri, asset.base64 ?? undefined);
   };
 
   const searchByText = async () => {
